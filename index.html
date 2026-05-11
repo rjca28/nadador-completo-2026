@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Nadador Completo Nacional 2026 | FPN</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #042C53;
+    --blue: #185FA5;
+    --mid: #378ADD;
+    --light: #D6E8F7;
+    --light2: #EBF4FC;
+    --bg: #f0f4f9;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a2a3a;
+    --muted: #7a8fa6;
+    --fem: #e8547a;
+    --masc: #378ADD;
+    --purple: #6a4fa0;
+    --gold: #D4AF37;
+    --silver: #A8A9AD;
+    --bronze: #CD7F32;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, #0e4a8a 60%, var(--blue) 100%);
+    padding: 0 32px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 24px rgba(4,44,83,.35);
+  }
+  .header-inner { max-width: 1140px; margin: 0 auto; padding-top: 18px; }
+  .header-title-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .header-icon { font-size: 30px; line-height: 1; }
+  .header-title { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,.6); margin-top: 3px; letter-spacing: 0.03em; }
+  .nav { display: flex; gap: 2px; }
+  .nav-btn {
+    padding: 10px 20px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12.5px;
+    border-radius: 8px 8px 0 0;
+    background: transparent; color: rgba(255,255,255,.65);
+    transition: all .2s; letter-spacing: 0.01em;
+  }
+  .nav-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+  .nav-btn.active { background: var(--bg); color: var(--navy); }
+
+  /* CONTENT */
+  .content { max-width: 1140px; margin: 0 auto; padding: 28px 32px 60px; }
+
+  /* SECTIONS */
+  .section { display: none; flex-direction: column; gap: 22px; }
+  .section.active { display: flex; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(4,44,83,.04);
+  }
+  .card-title { font-size: 13.5px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .card-sub { font-size: 11.5px; color: var(--muted); margin-bottom: 18px; }
+
+  /* KPI ROW */
+  .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .kpi {
+    background: var(--card); border-radius: 12px; padding: 18px 22px;
+    border: 1px solid var(--border); flex: 1; min-width: 130px;
+  }
+  .kpi-label { font-size: 10px; color: var(--muted); font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .kpi-value { font-size: 30px; font-weight: 900; line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 14px; }
+
+  /* ESCALAO CARDS */
+  .esc-card { background: var(--card); border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border); }
+  .esc-title { font-weight: 900; font-size: 14px; color: var(--navy); margin-bottom: 10px; }
+  .esc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .esc-row-label { font-size: 11.5px; }
+  .esc-row-val { font-weight: 800; font-size: 13px; }
+  .esc-divider { border-top: 1px solid var(--border); padding-top: 7px; margin-top: 4px; }
+
+  /* TABS */
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px;
+    background: transparent; color: #6b7d8e; transition: all .2s;
+  }
+  .tab-btn:hover { background: var(--light2); color: var(--navy); }
+  .tab-btn.active { background: var(--navy); color: #fff; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { background: var(--navy); color: #fff; padding: 10px 14px; font-weight: 700; text-align: left; font-size: 11.5px; }
+  th:not(:first-child) { text-align: right; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:nth-child(even) td { background: #fafbfd; }
+  tr:hover td { background: var(--light2); }
+  .td-bold { font-weight: 700; color: var(--navy); }
+  .td-fem { color: var(--fem); font-weight: 700; }
+  .td-masc { color: var(--masc); font-weight: 700; }
+  .td-purple { color: var(--purple); font-weight: 700; }
+
+  /* RANKING BARS */
+  .rank-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rank-num {
+    width: 28px; height: 28px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 11px;
+    font-weight: 900; flex-shrink: 0; color: #fff;
+  }
+  .rank-bar-wrap { flex: 1; }
+  .rank-name { font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .rank-track { height: 5px; background: var(--border); border-radius: 3px; }
+  .rank-fill { height: 5px; border-radius: 3px; transition: width .6s ease; }
+  .rank-pts { font-size: 12.5px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+  /* EQUIPA WINNER BOX */
+  .winner-box {
+    background: linear-gradient(135deg, #c9a227 0%, #f0d060 100%);
+    border-radius: 12px; padding: 16px 20px; flex: 1; min-width: 180px;
+  }
+  .winner-label { font-size: 11px; color: rgba(0,0,0,.5); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .winner-name { font-size: 17px; font-weight: 900; color: #2a1a00; }
+  .winner-pts { font-size: 13px; font-weight: 700; color: #5a3a00; margin-top: 2px; }
+
+  /* MULTI-PRESENCE TAGS */
+  .tag-card { background: #f7f9fc; border-radius: 8px; padding: 10px 14px; border: 1px solid var(--border); }
+  .tag-name { font-weight: 700; color: var(--navy); font-size: 12.5px; margin-bottom: 6px; }
+  .tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag {
+    background: var(--navy); color: #fff; border-radius: 4px;
+    padding: 2px 8px; font-size: 10px; font-weight: 700;
+  }
+  .flex-wrap { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* PROGRESS TABLE */
+  .drop-high { color: #c03060 !important; }
+  .drop-ok { color: #999; }
+
+  /* CHART CONTAINER */
+  .chart-box { position: relative; }
+
+  /* FOOTER */
+  .page-footer {
+    text-align: center; padding: 28px 32px;
+    font-size: 11px; color: var(--muted); letter-spacing: 0.04em;
+    border-top: 1px solid var(--border); margin-top: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .header { padding: 0 16px; }
+    .content { padding: 20px 16px 48px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .nav-btn { padding: 8px 12px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-title-row">
+      <div class="header-icon">🏊</div>
+      <div>
+        <div class="header-title">Dashboard — Nadador Completo Nacional 2026</div>
+        <div class="header-sub">Federação Portuguesa de Natação &nbsp;·&nbsp; Torneio maio 2026 &nbsp;·&nbsp; Rankings Infantis &amp; Juvenis</div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="showSection('overview',this)">📊 Visão Geral</button>
+      <button class="nav-btn" onclick="showSection('progressao',this)">📈 Progressão</button>
+      <button class="nav-btn" onclick="showSection('equipas',this)">🏆 Equipas</button>
+      <button class="nav-btn" onclick="showSection('clubes',this)">🏊 Clubes</button>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ VISÃO GERAL ═══════════════ -->
+<div id="section-overview" class="section active">
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total Nadadores</div><div class="kpi-value" style="color:var(--navy)">1.333</div><div class="kpi-sub">4 escalões</div></div>
+    <div class="kpi"><div class="kpi-label">Feminino</div><div class="kpi-value" style="color:var(--fem)">684</div><div class="kpi-sub">51.3% do total</div></div>
+    <div class="kpi"><div class="kpi-label">Masculino</div><div class="kpi-value" style="color:var(--masc)">649</div><div class="kpi-sub">48.7% do total</div></div>
+    <div class="kpi"><div class="kpi-label">Clubes Únicos</div><div class="kpi-value" style="color:var(--purple)">128</div><div class="kpi-sub">Total geral</div></div>
+  </div>
+
+  <div class="grid-4">
+    <div class="esc-card">
+      <div class="esc-title">Infantil B (13 anos)</div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--muted)">Total</span><span class="esc-row-val" style="color:var(--navy)">454</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--fem)">Feminino</span><span class="esc-row-val" style="color:var(--fem)">246</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--masc)">Masculino</span><span class="esc-row-val" style="color:var(--masc)">208</span></div>
+      <div class="esc-row esc-divider"><span class="esc-row-label" style="color:var(--muted)">Clubes</span><span class="esc-row-val" style="color:var(--purple)">117</span></div>
+    </div>
+    <div class="esc-card">
+      <div class="esc-title">Infantil A (14 anos)</div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--muted)">Total</span><span class="esc-row-val" style="color:var(--navy)">412</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--fem)">Feminino</span><span class="esc-row-val" style="color:var(--fem)">234</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--masc)">Masculino</span><span class="esc-row-val" style="color:var(--masc)">178</span></div>
+      <div class="esc-row esc-divider"><span class="esc-row-label" style="color:var(--muted)">Clubes</span><span class="esc-row-val" style="color:var(--purple)">115</span></div>
+    </div>
+    <div class="esc-card">
+      <div class="esc-title">Juvenil B (15 anos)</div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--muted)">Total</span><span class="esc-row-val" style="color:var(--navy)">260</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--fem)">Feminino</span><span class="esc-row-val" style="color:var(--fem)">115</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--masc)">Masculino</span><span class="esc-row-val" style="color:var(--masc)">145</span></div>
+      <div class="esc-row esc-divider"><span class="esc-row-label" style="color:var(--muted)">Clubes</span><span class="esc-row-val" style="color:var(--purple)">83</span></div>
+    </div>
+    <div class="esc-card">
+      <div class="esc-title">Juvenil A (16 anos)</div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--muted)">Total</span><span class="esc-row-val" style="color:var(--navy)">207</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--fem)">Feminino</span><span class="esc-row-val" style="color:var(--fem)">89</span></div>
+      <div class="esc-row"><span class="esc-row-label" style="color:var(--masc)">Masculino</span><span class="esc-row-val" style="color:var(--masc)">118</span></div>
+      <div class="esc-row esc-divider"><span class="esc-row-label" style="color:var(--muted)">Clubes</span><span class="esc-row-val" style="color:var(--purple)">81</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Nadadores por Escalão e Género</div>
+      <div class="card-sub">Distribuição feminino / masculino</div>
+      <div class="chart-box" style="height:220px"><canvas id="chartParticipacao"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Clubes Envolvidos por Escalão</div>
+      <div class="card-sub">Número de clubes com atletas classificados</div>
+      <div class="chart-box" style="height:220px"><canvas id="chartClubes"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Média Top 5 por Escalão — Feminino vs Masculino</div>
+    <div class="card-sub">Comparação do nível de excelência em cada escalão</div>
+    <div class="chart-box" style="height:220px"><canvas id="chartTop5"></canvas></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ PROGRESSÃO ═══════════════ -->
+<div id="section-progressao" class="section">
+
+  <div class="card">
+    <div class="card-title">Análise de Progressão — Média por Grupo de 5 Posições</div>
+    <div class="card-sub">Pontuação média de cada grupo de 5 classificados, do 1.º ao 50.º lugar</div>
+    <div class="tab-row" id="prog-tabs">
+      <button class="tab-btn active" onclick="updateProgChart('Inf B',this)">Infantil B (13)</button>
+      <button class="tab-btn" onclick="updateProgChart('Inf A',this)">Infantil A (14)</button>
+      <button class="tab-btn" onclick="updateProgChart('Juv B',this)">Juvenil B (15)</button>
+      <button class="tab-btn" onclick="updateProgChart('Juv A',this)">Juvenil A (16)</button>
+    </div>
+    <div id="prog-kpis" class="kpi-row" style="margin-bottom:18px"></div>
+    <div class="chart-box" style="height:260px"><canvas id="chartProg"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Progressão Feminino — Todos os Escalões</div>
+      <div class="card-sub">Comparação da curva de evolução</div>
+      <div class="chart-box" style="height:220px"><canvas id="chartProgFemAll"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Progressão Masculino — Todos os Escalões</div>
+      <div class="card-sub">Comparação da curva de evolução</div>
+      <div class="chart-box" style="height:220px"><canvas id="chartProgMascAll"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" id="prog-table-card">
+    <div class="card-title" id="prog-table-title">Tabela de Progressão — Infantil B (13)</div>
+    <div class="table-wrap"><table id="prog-table">
+      <thead><tr><th>Posições</th><th>Média Fem</th><th>Queda Fem</th><th>Média Masc</th><th>Queda Masc</th><th>Dif. F−M</th></tr></thead>
+      <tbody id="prog-tbody"></tbody>
+    </table></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ EQUIPAS ═══════════════ -->
+<div id="section-equipas" class="section">
+
+  <div class="card">
+    <div class="card-title">Classificação por Equipas — Top 10</div>
+    <div class="card-sub">Soma dos 3 melhores atletas por clube em cada categoria</div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="updateEquipas('Infantis',this)">Infantis (A+B)</button>
+      <button class="tab-btn" onclick="updateEquipas('Juvenis',this)">Juvenis (A+B)</button>
+      <button class="tab-btn" onclick="updateEquipas('Inf B',this)">Infantil B</button>
+      <button class="tab-btn" onclick="updateEquipas('Inf A',this)">Infantil A</button>
+      <button class="tab-btn" onclick="updateEquipas('Juv B',this)">Juvenil B</button>
+      <button class="tab-btn" onclick="updateEquipas('Juv A',this)">Juvenil A</button>
+    </div>
+    <div class="kpi-row" style="margin-bottom:20px">
+      <div class="winner-box">
+        <div class="winner-label">🥇 Campeão</div>
+        <div class="winner-name" id="eq-winner-name">Sporting</div>
+        <div class="winner-pts" id="eq-winner-pts">12.574 pts</div>
+      </div>
+      <div class="kpi"><div class="kpi-label">Diferença 1.º → 10.º</div><div class="kpi-value" id="eq-spread" style="color:var(--purple);font-size:22px">2.303</div><div class="kpi-sub">pontos de amplitude</div></div>
+    </div>
+    <div id="eq-ranking"></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Top 5 Infantis (A+B)</div>
+      <div id="rank-infantis"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top 5 Juvenis (A+B)</div>
+      <div id="rank-juvenis"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Clubes com Presença em Múltiplos Top 10</div>
+    <div class="card-sub">Clubes que figuram no top 10 de equipas em vários escalões</div>
+    <div class="flex-wrap" id="multi-presence"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ CLUBES ═══════════════ -->
+<div id="section-clubes" class="section">
+
+  <div class="card">
+    <div class="card-title">Clubes com Mais Nadadores Classificados</div>
+    <div class="card-sub">Número de atletas presentes no ranking completo por clube</div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="updateClubes('Inf B',this)">Infantil B (13)</button>
+      <button class="tab-btn" onclick="updateClubes('Inf A',this)">Infantil A (14)</button>
+      <button class="tab-btn" onclick="updateClubes('Juv B',this)">Juvenil B (15)</button>
+      <button class="tab-btn" onclick="updateClubes('Juv A',this)">Juvenil A (16)</button>
+    </div>
+    <div class="chart-box" style="height:300px"><canvas id="chartClubesRank"></canvas></div>
+  </div>
+
+  <div class="grid-4" id="clubes-summary"></div>
+
+</div>
+
+</div><!-- /content -->
+
+<div class="page-footer">
+  Federação Portuguesa de Natação &nbsp;·&nbsp; Torneio Nadador Completo Nacional &nbsp;·&nbsp; Maio 2026 &nbsp;·&nbsp; Uso Interno
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const ESCALOES = ["Inf B","Inf A","Juv B","Juv A"];
+const LABELS = {"Inf B":"Infantil B (13)","Inf A":"Infantil A (14)","Juv B":"Juvenil B (15)","Juv A":"Juvenil A (16)"};
+const RANGES = ["1-5","6-10","11-15","16-20","21-25","26-30","31-35","36-40","41-45","46-50"];
+const MEDAL_COLORS = ["#D4AF37","#A8A9AD","#CD7F32","#4a6fa5","#6a9e6a","#e07050","#7b68a0","#5b8fa8","#c07878","#6abba0"];
+
+const nadadores = {
+  "Inf B": {total:454,fem:246,masc:208,clubes:117,top5_fem:2152.4,top5_masc:1653.2,
+    prog_fem:[2152.4,2012.2,1912.0,1824.2,1795.0,1739.0,1704.6,1680.0,1631.2,1612.0],
+    prog_masc:[1653.2,1526.0,1469.8,1402.8,1360.2,1331.4,1308.0,1273.0,1248.4,1230.2],
+    top_clubs:[["Sporting",19],["Famalicão",15],["ADRCC Monte Maior",15],["Fluvial Portuense",13],["Vilacondense",13],["Louletano/Loulé",11],["Palmela Desp.",10],["Feirense",10],["Benfica",9],["FOCA Quinta Lixa",9]]},
+  "Inf A": {total:412,fem:234,masc:178,clubes:115,top5_fem:2506.8,top5_masc:2138.4,
+    prog_fem:[2506.8,2233.2,2120.8,2022.8,1938.6,1899.0,1882.2,1850.4,1826.0,1815.2],
+    prog_masc:[2138.4,1864.2,1789.8,1701.4,1659.0,1637.8,1594.2,1561.4,1519.0,1491.8],
+    top_clubs:[["ADRCC Monte Maior",12],["Sporting",13],["Naval do Funchal",5],["Galitos/Bresimar",9],["Vilacondense",6],["Lagoa AC",3],["Alcobaça",5],["BÚZIOS-Coruche",6],["Física Torres Vedras",5],["Natação da Maia",9]]},
+  "Juv B": {total:260,fem:115,masc:145,clubes:83,top5_fem:2541.4,top5_masc:2480.4,
+    prog_fem:[2541.4,2343.0,2236.6,2141.4,2103.4,2031.8,1973.8,1908.0,1877.6,1845.6],
+    prog_masc:[2480.4,2317.4,2247.6,2156.4,2100.8,2029.2,1998.0,1979.0,1943.2,1912.8],
+    top_clubs:[["CNLeiria-VOID",11],["Naval do Funchal",9],["Benfica",7],["Condeixa Clube",7],["BÚZIOS-Coruche",7],["Palmela Desp.",7],["Porto",7],["Portinado",7],["Sporting",6],["ADRCC Monte Maior",6]]},
+  "Juv A": {total:207,fem:89,masc:118,clubes:81,top5_fem:2661.4,top5_masc:2588.6,
+    prog_fem:[2661.4,2352.6,2216.2,2173.2,2132.0,2065.4,2002.6,1945.6,1885.0,1843.2],
+    prog_masc:[2588.6,2420.6,2374.4,2325.6,2280.6,2232.6,2180.0,2127.2,2087.2,2058.0],
+    top_clubs:[["Sporting",13],["Portinado",7],["Braga",7],["Galitos/Bresimar",6],["Louletano/Loulé",6],["BA Leiria",6],["Rio Maior",6],["Juventude Atlântico",6],["Porto",5],["Pimpões/Cimai",5]]}
+};
+
+const equipas = {
+  "Inf B":[["Sporting",6318],["Famalicão",5715],["Galitos/Bresimar",5578],["Algés & Águeda",5258],["Louletano/Loulé",5224],["Braga",5164],["Fluvial Portuense",5124],["Benfica",5118],["ADRCC Monte Maior",4927],["NC Fafe",4843]],
+  "Inf A":[["ADRCC Monte Maior",6285],["Sporting",6256],["Naval do Funchal",6182],["Galitos/Bresimar",6177],["Vilacondense",6127],["Lagoa AC",6043],["Alcobaça",5924],["BÚZIOS-Coruche",5840],["Física Torres Vedras",5800],["Natação da Maia",5745]],
+  "Juv B":[["Sporting",7223],["Colégio Efanor",7023],["ADRCC Monte Maior",6742],["Galitos/Bresimar",6646],["RIA Aqua Tavira",6579],["Benfica",6565],["Naval do Funchal",6564],["Náutico M. Grande",6524],["Louletano/Loulé",6485],["Algés",6458]],
+  "Juv A":[["Galitos/Bresimar",7817],["Sporting",7049],["Condeixa Clube",7038],["Portinado",6922],["Porto",6830],["Pimpões/Cimai",6809],["Geslouros",6801],["Algés",6688],["Braga",6633],["Náutico Académico",6579]],
+  "Infantis":[["Sporting",12574],["Galitos/Bresimar",11755],["ADRCC Monte Maior",11212],["Famalicão",11071],["Vilacondense",10758],["Lagoa AC",10580],["Louletano/Loulé",10398],["Física Torres Vedras",10314],["Benfica",10277],["Colégio Efanor",10271]],
+  "Juvenis":[["Galitos/Bresimar",14463],["Sporting",14272],["Algés",13146],["Naval do Funchal",13083],["Braga",13054],["Louletano/Loulé",13010],["Condeixa Clube",12925],["Portinado",12812],["Porto",12717],["Náutico M. Grande",12598]]
+};
+
+// ─── CHART.JS DEFAULTS ───────────────────────────────────────────────────────
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.font = { size: 11 };
+
+const TOOLTIP_PLUGIN = {
+  backgroundColor: "#042C53",
+  titleFont: { weight: "bold", size: 12 },
+  bodyFont: { size: 11 },
+  padding: 10,
+  cornerRadius: 8,
+  callbacks: {
+    label: ctx => ` ${ctx.dataset.label}: ${Math.round(ctx.raw).toLocaleString("pt-PT")}`
+  }
+};
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("section-" + id).classList.add("active");
+  btn.classList.add("active");
+}
+
+function setActiveTabs(container, btn) {
+  container.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+// ─── CHART INSTANCES ─────────────────────────────────────────────────────────
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+// ─── OVERVIEW CHARTS ─────────────────────────────────────────────────────────
+function initOverview() {
+  const esc_labels = ESCALOES.map(e => LABELS[e]);
+
+  destroyChart("chartParticipacao");
+  charts["chartParticipacao"] = new Chart(document.getElementById("chartParticipacao"), {
+    type: "bar",
+    data: {
+      labels: esc_labels,
+      datasets: [
+        { label: "Feminino", data: ESCALOES.map(e => nadadores[e].fem), backgroundColor: "#e8547a", borderRadius: 5 },
+        { label: "Masculino", data: ESCALOES.map(e => nadadores[e].masc), backgroundColor: "#378ADD", borderRadius: 5 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 11 } } }, y: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  destroyChart("chartClubes");
+  charts["chartClubes"] = new Chart(document.getElementById("chartClubes"), {
+    type: "bar",
+    data: {
+      labels: esc_labels,
+      datasets: [{ label: "Clubes", data: ESCALOES.map(e => nadadores[e].clubes),
+        backgroundColor: ["#042C53","#185FA5","#378ADD","#5ba0d0"], borderRadius: 5 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN, legend: { display: false } },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 11 } } }, y: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  destroyChart("chartTop5");
+  charts["chartTop5"] = new Chart(document.getElementById("chartTop5"), {
+    type: "bar",
+    data: {
+      labels: esc_labels,
+      datasets: [
+        { label: "Feminino", data: ESCALOES.map(e => nadadores[e].top5_fem), backgroundColor: "#e8547a", borderRadius: 5 },
+        { label: "Masculino", data: ESCALOES.map(e => nadadores[e].top5_masc), backgroundColor: "#378ADD", borderRadius: 5 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { min: 1400, grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+}
+
+// ─── PROGRESSÃO ──────────────────────────────────────────────────────────────
+let currentProgEsc = "Inf B";
+
+function updateProgChart(esc, btn) {
+  currentProgEsc = esc;
+  if (btn) setActiveTabs(btn.closest(".tab-row"), btn);
+  const d = nadadores[esc];
+
+  // KPIs
+  const dropF = Math.round(d.prog_fem[0] - d.prog_fem[9]);
+  const dropM = Math.round(d.prog_masc[0] - d.prog_masc[9]);
+  document.getElementById("prog-kpis").innerHTML = `
+    <div class="kpi"><div class="kpi-label">Média Top 5 Fem</div><div class="kpi-value" style="color:var(--fem);font-size:22px">${d.top5_fem.toFixed(1)}</div></div>
+    <div class="kpi"><div class="kpi-label">Média Top 5 Masc</div><div class="kpi-value" style="color:var(--masc);font-size:22px">${d.top5_masc.toFixed(1)}</div></div>
+    <div class="kpi"><div class="kpi-label">Queda Fem (1→50)</div><div class="kpi-value" style="color:var(--fem);font-size:22px">-${dropF}</div><div class="kpi-sub">pts top5 vs pos46-50</div></div>
+    <div class="kpi"><div class="kpi-label">Queda Masc (1→50)</div><div class="kpi-value" style="color:var(--masc);font-size:22px">-${dropM}</div><div class="kpi-sub">pts top5 vs pos46-50</div></div>
+  `;
+
+  // Chart
+  destroyChart("chartProg");
+  charts["chartProg"] = new Chart(document.getElementById("chartProg"), {
+    type: "line",
+    data: {
+      labels: RANGES,
+      datasets: [
+        { label: "Feminino", data: d.prog_fem, borderColor: "#e8547a", backgroundColor: "rgba(232,84,122,.08)", pointBackgroundColor: "#e8547a", pointRadius: 5, tension: 0.3, fill: true },
+        { label: "Masculino", data: d.prog_masc, borderColor: "#378ADD", backgroundColor: "rgba(55,138,221,.08)", pointBackgroundColor: "#378ADD", pointRadius: 5, tension: 0.3, fill: true }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 11 } } }, y: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  // Table
+  document.getElementById("prog-table-title").textContent = "Tabela de Progressão — " + LABELS[esc];
+  const tbody = document.getElementById("prog-tbody");
+  tbody.innerHTML = "";
+  RANGES.forEach((r, i) => {
+    const dF = i === 0 ? null : Math.round(d.prog_fem[i-1] - d.prog_fem[i]);
+    const dM = i === 0 ? null : Math.round(d.prog_masc[i-1] - d.prog_masc[i]);
+    const difFM = Math.round(d.prog_fem[i] - d.prog_masc[i]);
+    tbody.innerHTML += `<tr>
+      <td class="td-bold">${r}</td>
+      <td class="td-fem">${Math.round(d.prog_fem[i]).toLocaleString("pt-PT")}</td>
+      <td class="${dF > 100 ? 'drop-high' : 'drop-ok'}">${dF === null ? "—" : "-" + dF}</td>
+      <td class="td-masc">${Math.round(d.prog_masc[i]).toLocaleString("pt-PT")}</td>
+      <td class="${dM > 100 ? 'drop-high' : 'drop-ok'}">${dM === null ? "—" : "-" + dM}</td>
+      <td class="td-purple">+${difFM}</td>
+    </tr>`;
+  });
+}
+
+function initProgressao() {
+  // All escalões comparison — Fem
+  destroyChart("chartProgFemAll");
+  charts["chartProgFemAll"] = new Chart(document.getElementById("chartProgFemAll"), {
+    type: "line",
+    data: {
+      labels: RANGES,
+      datasets: [
+        { label: "Inf B", data: nadadores["Inf B"].prog_fem, borderColor: "#e8547a", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Inf A", data: nadadores["Inf A"].prog_fem, borderColor: "#c03060", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Juv B", data: nadadores["Juv B"].prog_fem, borderColor: "#f090b0", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Juv A", data: nadadores["Juv A"].prog_fem, borderColor: "#ffc0d0", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  destroyChart("chartProgMascAll");
+  charts["chartProgMascAll"] = new Chart(document.getElementById("chartProgMascAll"), {
+    type: "line",
+    data: {
+      labels: RANGES,
+      datasets: [
+        { label: "Inf B", data: nadadores["Inf B"].prog_masc, borderColor: "#378ADD", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Inf A", data: nadadores["Inf A"].prog_masc, borderColor: "#0a3a7a", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Juv B", data: nadadores["Juv B"].prog_masc, borderColor: "#5090d0", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+        { label: "Juv A", data: nadadores["Juv A"].prog_masc, borderColor: "#90c0f0", pointRadius: 3, tension: 0.3, borderWidth: 2 },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: TOOLTIP_PLUGIN },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  updateProgChart("Inf B", null);
+}
+
+// ─── EQUIPAS ─────────────────────────────────────────────────────────────────
+function renderRankList(containerId, data, maxPts) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  data.forEach(([clube, pts], i) => {
+    const pct = Math.round((pts / maxPts) * 100);
+    container.innerHTML += `
+      <div class="rank-item">
+        <div class="rank-num" style="background:${MEDAL_COLORS[i]}">${i+1}</div>
+        <div class="rank-bar-wrap">
+          <div class="rank-name">${clube}</div>
+          <div class="rank-track"><div class="rank-fill" style="width:${pct}%;background:${MEDAL_COLORS[i]}"></div></div>
+        </div>
+        <div class="rank-pts">${pts.toLocaleString("pt-PT")}</div>
+      </div>`;
+  });
+}
+
+function updateEquipas(cat, btn) {
+  if (btn) setActiveTabs(btn.closest(".tab-row"), btn);
+  const data = equipas[cat];
+  document.getElementById("eq-winner-name").textContent = data[0][0];
+  document.getElementById("eq-winner-pts").textContent = data[0][1].toLocaleString("pt-PT") + " pts";
+  document.getElementById("eq-spread").textContent = (data[0][1] - data[9][1]).toLocaleString("pt-PT");
+  renderRankList("eq-ranking", data, data[0][1]);
+}
+
+function initEquipas() {
+  updateEquipas("Infantis", null);
+  renderRankList("rank-infantis", equipas["Infantis"].slice(0,5), equipas["Infantis"][0][1]);
+  renderRankList("rank-juvenis", equipas["Juvenis"].slice(0,5), equipas["Juvenis"][0][1]);
+
+  // Multi-presence
+  const cats = ["Inf B","Inf A","Juv B","Juv A"];
+  const presence = {};
+  cats.forEach(cat => equipas[cat].forEach(([clube], pos) => {
+    if (!presence[clube]) presence[clube] = {};
+    presence[clube][cat] = pos + 1;
+  }));
+  const multi = Object.entries(presence).filter(([,v]) => Object.keys(v).length > 1)
+    .sort((a,b) => Object.keys(b[1]).length - Object.keys(a[1]).length);
+  const mp = document.getElementById("multi-presence");
+  mp.innerHTML = multi.map(([clube, cats]) => `
+    <div class="tag-card">
+      <div class="tag-name">${clube}</div>
+      <div class="tags">${Object.entries(cats).map(([c,p]) => `<span class="tag">${c} · ${p}.º</span>`).join("")}</div>
+    </div>`).join("");
+}
+
+// ─── CLUBES ──────────────────────────────────────────────────────────────────
+let clubChart = null;
+function updateClubes(esc, btn) {
+  if (btn) setActiveTabs(btn.closest(".tab-row"), btn);
+  const d = nadadores[esc];
+  const labels = d.top_clubs.map(([c]) => c.length > 16 ? c.slice(0,15)+"…" : c);
+  const vals = d.top_clubs.map(([,n]) => n);
+  const colors = ["#042C53","#185FA5","#378ADD","#5ba0d0","#8abce0","#b0d0ee","#c8dff5","#6a4fa0","#9a6fd0","#c0a0f0"];
+
+  destroyChart("chartClubesRank");
+  charts["chartClubesRank"] = new Chart(document.getElementById("chartClubesRank"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label: "Nadadores", data: vals, backgroundColor: colors, borderRadius: [5,5,0,0] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      indexAxis: "y",
+      plugins: { tooltip: { ...TOOLTIP_PLUGIN, callbacks: { label: ctx => ` ${ctx.raw} nadadores` } }, legend: { display: false } },
+      scales: { x: { grid: { color: "#f0f4f8" }, ticks: { font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+    }
+  });
+}
+
+function initClubes() {
+  updateClubes("Inf B", null);
+  const sum = document.getElementById("clubes-summary");
+  sum.innerHTML = ESCALOES.map(e => {
+    const d = nadadores[e];
+    return `<div class="esc-card">
+      <div class="esc-title">${LABELS[e]}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Clubes com atletas: <b style="color:var(--purple)">${d.clubes}</b></div>
+      <div style="font-size:12px;color:var(--muted)">Clube líder:</div>
+      <div style="font-weight:800;color:var(--blue);font-size:13px;margin-top:2px">${d.top_clubs[0][0]} (${d.top_clubs[0][1]} nad.)</div>
+    </div>`;
+  }).join("");
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  initOverview();
+  initProgressao();
+  initEquipas();
+  initClubes();
+});
+</script>
+</body>
+</html>
